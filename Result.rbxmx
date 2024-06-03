@@ -11,8 +11,8 @@
 			<string name="Name">ImageResult</string>
 			<string name="ScriptGuid">{47B60619-4224-41F2-82C1-3B8ED8773817}</string>
 			<ProtectedString name="Source"><![CDATA[return "no image"]]></ProtectedString>
-            <int64 name="SourceAssetId">-1</int64>
-            <BinaryString name="Tags"></BinaryString>
-        </Properties>
-    </Item>
+            		<int64 name="SourceAssetId">-1</int64>
+            		<BinaryString name="Tags"></BinaryString>
+		</Properties>
+	 </Item>
 </roblox>
