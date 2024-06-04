@@ -6,7 +6,7 @@ def ShrinkNumber(Number):
     return Number / 255 == 1 and "1" or Number / 255 == 0 and "0" or str(Number / 255)[:5]
 
 def ValuesToPixelArray(Values):
-    # f'{ R }, { G }, { B }, { A | 1 }'
+    # f'{ R }, { G }, { B }, { A or 1 }'
     return f'{ShrinkNumber(Values[0])}, {ShrinkNumber(Values[1])}, {ShrinkNumber(Values[2])}, {len(Values) == 4 and ShrinkNumber(Values[3]) or "1"}'
 
 StartTime = time.time()
@@ -19,23 +19,20 @@ Img = Image.open(ImagePath)
 # because the maximum size is 1024x1024
 # example: 1920x1080 becomes 1024x576
 if Img.size[0] > Img.size[1] and Img.size[0] > 1024:
-    NewSizeHeight = int((Img.size[1] / Img.size[0]) * 1024)
-    Img = Img.resize((1024, NewSizeHeight))
+    NewSize = int((Img.size[1] / Img.size[0]) * 1024)
+    Img = Img.resize((1024, NewSize))
 elif Img.size[1] > Img.size[0] and Img.size[1] > 1024:
-    NewSizeWidth = int((Img.size[0] / Img.size[1]) * 1024)
-    Img = Img.resize((NewSizeWidth, 1024))
+    NewSize = int((Img.size[0] / Img.size[1]) * 1024)
+    Img = Img.resize((NewSize, 1024))
 
-# I messed up the width and height thing, I'll fix it later
-Img = Img.rotate(90, expand=True)
 Picture = Img.load()
 
-def GetValuesOfPixel(x, y):
-    return Picture[x, y]
-
 with open(XMLPath, "w") as File:
-    #clean the XMLe file
+    #clean the XML file
     File.write("")
+    File.close()
 
+# open the XML
 XMLFile = open(XMLPath, "a")
 XMLFile.write("""<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 	<Meta name="ExplicitAutoJoints">true</Meta>
@@ -52,25 +49,28 @@ XMLFile.write("""<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:x
 			<ProtectedString name="Source"><![CDATA[""")
 
 Width, Height = Img.size
+PixelsAmount = (Width * Height)
 
-XMLFile.write("""return {\n	["Resolution"] = Vector2.new(""" + str(Height) + """, """ + str(Width) + """),\n	["Image"] = {""")
+XMLFile.write("""return {\n	["Resolution"] = Vector2.new(""" + str(Width) + """, """ + str(Height) + """),\n	["Image"] = {""")
+# set up the module script's source
 
-Percent = 0
-Parts = 0
+Percent = -1
+Pixel = 0
 
-for X in range(Width):
+for Y in range(Height):
     XMLFile.write("\n		")
 
-    for Y in range(Height - 1, -1, -1):
-        Parts += 1
-        NewPercent = int(Parts / (Width * Height) * 100)
+    for X in range(Width):
+        Pixel += 1
+        NewPercent = int(Pixel / PixelsAmount * 100)
         
-        if Percent != NewPercent:
-            print(str(NewPercent) + "%	parts: " + str(Parts))
+        if Percent < NewPercent:
+            print(str(NewPercent) + "%	pixels: " + str(Pixel))
             Percent = NewPercent
 
-        XMLFile.write(ValuesToPixelArray(GetValuesOfPixel(X, Y)) + ", ")
+        XMLFile.write(ValuesToPixelArray(Picture[X, Y]) + ", ")
 
+# close the module script
 XMLFile.write("""\n	}\n}]]></ProtectedString>
             <int64 name="SourceAssetId">-1</int64>
             <BinaryString name="Tags"></BinaryString>
@@ -80,9 +80,6 @@ XMLFile.write("""\n	}\n}]]></ProtectedString>
 XMLFile.close()
 
 print("TIME TOOK: " + str(time.time() - StartTime))
-
-# wait until we press escape so i can see the time it took
-
 print("PRESS ESC TO EXIT")
 
 import keyboard
