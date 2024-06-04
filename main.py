@@ -3,7 +3,7 @@ import time
 
 def ShrinkNumber(Number):
     # converts a number like 135 to "0.529"
-    return Number / 255 == 1 and "1" or Number / 255 == 0 and "0" or str(Number / 255)[:5]
+    return Number / 255 == 1 and "1" or Number / 255 == 0 and "0" or str(Number / 255)[1:5]
 
 def ValuesToPixelArray(Values):
     # f'{ R }, { G }, { B }, { A or 1 }'
